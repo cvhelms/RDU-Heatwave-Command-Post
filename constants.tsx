@@ -66,8 +66,7 @@ export const MOCK_MEMBERS_EXTENDED: Member[] = [
     phone: '(919) 801-7920',
     memberSince: '2026-01-08',
     renewalDate: '2027-01-08',
-    status: 'Active',
-    isGoverningCommittee: true
+    status: 'Active'
   },
   {
     id: '5',
@@ -125,6 +124,7 @@ export const MOCK_MEMBERS_EXTENDED: Member[] = [
 
 // ===== REFERRALS =====
 // Imported from Google Sheet "Referrals" tab
+// Team Totals: Given=9, Received=9, Revenue=$603
 export const MOCK_REFERRALS_EXTENDED: Referral[] = [
   // 01-08-2026
   { id: 'ref-1', date: '2026-01-08', fromMemberId: '1', toMemberId: '3', prospectName: 'Pam Ribet', type: ReferralType.OUTSIDE, status: 'In Progress' },
@@ -146,7 +146,7 @@ export const MOCK_REVENUE_EXTENDED: RevenueRecord[] = [
 ];
 
 // ===== ATTENDANCE =====
-// From Google Sheet "Attendance" tab - only notable entries (substitute)
+// From Google Sheet "Attendance" tab
 export const MOCK_ATTENDANCE_EXTENDED: Attendance[] = [
   // 01-08-2026 - All present (founding meeting)
   { id: 'att-2026-01-08-1', date: '2026-01-08', memberId: '1', status: AttendanceStatus.PRESENT },
@@ -169,40 +169,32 @@ export const MOCK_ATTENDANCE_EXTENDED: Attendance[] = [
 ];
 
 // ===== BIZCHATS =====
-// From Google Sheet "BizChats" tab - January 2026 totals converted to individual records
+// From Google Sheet "BizChats" tab - January 2026 totals:
+// Carter=4, Chad=2, Craig=0, Dana=3, Nate=0, Robert=2, Rusty=1, Will=0
 export const MOCK_BIZCHATS_EXTENDED: BizChat[] = [
-  // Carter Helms - 4 BizChats in Jan
-  { id: 'bc-1', date: '2026-01-08', member1Id: '1', member2Id: '2' },
-  { id: 'bc-2', date: '2026-01-08', member1Id: '1', member2Id: '3' },
-  { id: 'bc-3', date: '2026-01-15', member1Id: '1', member2Id: '6' },
-  { id: 'bc-4', date: '2026-01-15', member1Id: '1', member2Id: '7' },
-  // Chad Haywood - 2 BizChats in Jan
-  { id: 'bc-5', date: '2026-01-15', member1Id: '3', member2Id: '4' },
-  { id: 'bc-6', date: '2026-01-15', member1Id: '3', member2Id: '8' },
-  // Dana Walsh - 3 BizChats in Jan
-  { id: 'bc-7', date: '2026-01-15', member1Id: '6', member2Id: '2' },
-  { id: 'bc-8', date: '2026-01-15', member1Id: '6', member2Id: '4' },
-  { id: 'bc-9', date: '2026-01-15', member1Id: '6', member2Id: '5' },
-  // Robert Courts - 2 BizChats in Jan
-  { id: 'bc-10', date: '2026-01-15', member1Id: '8', member2Id: '5' },
-  { id: 'bc-11', date: '2026-01-15', member1Id: '8', member2Id: '7' },
-  // Rusty Sutton - 1 BizChat in Jan
-  { id: 'bc-12', date: '2026-01-15', member1Id: '4', member2Id: '7' },
+  { id: 'bc-1', date: '2026-01-08', member1Id: '1', member2Id: '3' },  // Carter + Chad
+  { id: 'bc-2', date: '2026-01-08', member1Id: '1', member2Id: '4' },  // Carter + Rusty
+  { id: 'bc-3', date: '2026-01-15', member1Id: '1', member2Id: '6' },  // Carter + Dana
+  { id: 'bc-4', date: '2026-01-15', member1Id: '1', member2Id: '8' },  // Carter + Robert
+  { id: 'bc-5', date: '2026-01-15', member1Id: '3', member2Id: '6' },  // Chad + Dana
+  { id: 'bc-6', date: '2026-01-15', member1Id: '6', member2Id: '8' },  // Dana + Robert
 ];
 
 // ===== GRATITUDE INCENTIVES =====
 // From Google Sheet "GIs" tab
+// Corporate: Carter Helms gave 2 in January
+// Member: Carter Helms gave 6 in January, received by Chad, Craig, Dana, Nate, Robert, Rusty (1 each)
 export const MOCK_INCENTIVES_EXTENDED: GratitudeIncentive[] = [
   // Corporate Gratitude Incentives - Carter Helms gave 2 in Jan
   { id: 'gi-corp-1', date: '2026-01-08', fromMemberId: '1', amount: 1, type: 'Corporate' },
   { id: 'gi-corp-2', date: '2026-01-15', fromMemberId: '1', amount: 1, type: 'Corporate' },
-  // Member Gratitude Incentives - Carter Helms gave 6 in Feb (distributed to members)
-  { id: 'gi-mem-1', date: '2026-02-01', fromMemberId: '1', toMemberId: '3', amount: 1, type: 'Member' },
-  { id: 'gi-mem-2', date: '2026-02-01', fromMemberId: '1', toMemberId: '2', amount: 1, type: 'Member' },
-  { id: 'gi-mem-3', date: '2026-02-01', fromMemberId: '1', toMemberId: '6', amount: 1, type: 'Member' },
-  { id: 'gi-mem-4', date: '2026-02-01', fromMemberId: '1', toMemberId: '7', amount: 1, type: 'Member' },
-  { id: 'gi-mem-5', date: '2026-02-01', fromMemberId: '1', toMemberId: '8', amount: 1, type: 'Member' },
-  { id: 'gi-mem-6', date: '2026-02-01', fromMemberId: '1', toMemberId: '4', amount: 1, type: 'Member' },
+  // Member Gratitude Incentives - Carter Helms gave 6 in January (one to each member except Will)
+  { id: 'gi-mem-1', date: '2026-01-15', fromMemberId: '1', toMemberId: '3', amount: 1, type: 'Member' },  // to Chad
+  { id: 'gi-mem-2', date: '2026-01-15', fromMemberId: '1', toMemberId: '2', amount: 1, type: 'Member' },  // to Craig
+  { id: 'gi-mem-3', date: '2026-01-15', fromMemberId: '1', toMemberId: '6', amount: 1, type: 'Member' },  // to Dana
+  { id: 'gi-mem-4', date: '2026-01-15', fromMemberId: '1', toMemberId: '7', amount: 1, type: 'Member' },  // to Nate
+  { id: 'gi-mem-5', date: '2026-01-15', fromMemberId: '1', toMemberId: '8', amount: 1, type: 'Member' },  // to Robert
+  { id: 'gi-mem-6', date: '2026-01-15', fromMemberId: '1', toMemberId: '4', amount: 1, type: 'Member' },  // to Rusty
 ];
 
 // ===== VISITORS =====
