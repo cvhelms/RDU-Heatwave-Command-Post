@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\CarterHelms\\\\OneDrive - High Street Insurance Partners\\\\Desktop\\\\Repos\\\\RDU Heatwave Command Post\")",
+      "Bash(gh repo list:*)",
+      "Bash(findstr:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
