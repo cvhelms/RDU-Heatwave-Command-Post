@@ -87,24 +87,6 @@ const App: React.FC = () => {
       );
     }
     
-    // --- DEMO SIMULATION for missing meeting entry ---
-    const hasSimulatedDraft = localStorage.getItem('rdu_simulated_draft_created');
-    if (!hasSimulatedDraft) {
-        const twoWeeksAgo = new Date();
-        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-        const staleDraftData = {
-            currentDraftId: null,
-            meetingDate: twoWeeksAgo.toISOString().split('T')[0],
-            meetingTime: "16:00",
-            sessionAttendance: {},
-            sessionVisitors: [],
-            sessionReferrals: [], sessionApplications: [], sessionInductions: [],
-            sessionGratitude: {}, sessionBizChatCounts: {}, pendingReferralUpdates: {},
-        };
-        localStorage.setItem('rdu_active_meeting_draft', JSON.stringify(staleDraftData));
-        localStorage.setItem('rdu_simulated_draft_created', 'true');
-    }
-    // --- END DEMO SIMULATION ---
 
     let historyNeedsUpdate = false;
     let newHistory = [...meetingHistory];
