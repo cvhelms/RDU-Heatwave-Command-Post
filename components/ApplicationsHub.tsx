@@ -128,8 +128,12 @@ const ApplicationsHub: React.FC<ApplicationsHubProps> = ({ applications, setAppl
             ? { ...a, status: appToReinstate.previousStatus || 'Applied', notes: undefined, declineDate: undefined, previousStatus: undefined }
             : a
         ));
-        // Remove from visitor list if they were added upon decline
-        setVisitors(prev => prev.filter(v => v.email?.toLowerCase() !== appToReinstate.email.toLowerCase()));
+        // Mark visitor records as Applied again instead of removing them
+        setVisitors(prev => prev.map(v =>
+            v.email?.toLowerCase() === appToReinstate.email.toLowerCase()
+            ? { ...v, followUpStatus: 'Applied' as const, convertedToApplicationId: appToReinstate.id }
+            : v
+        ));
         setShowDeclined(false);
     }
   };

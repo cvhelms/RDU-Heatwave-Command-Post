@@ -436,27 +436,56 @@ const MeetingEntry: React.FC<MeetingEntryProps> = ({
       sessionInductions.forEach(appId => {
         const app = applications.find(a => a.id === appId);
         if (app) {
+          const memberId = `mem-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
           const newMember: Member = {
-            id: `mem-${Date.now()}`, name: app.name, dob: app.dob, address: app.address, companyName: app.companyName,
+            id: memberId, name: app.name, dob: app.dob, address: app.address, companyName: app.companyName,
             professionalClassification: app.professionalClassification, email: app.email, phone: app.phone, memberSince: meetingDate,
             renewalDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0], status: 'Active',
-            sponsoredByMemberId: app.sponsoredByMemberId
+            sponsoredByMemberId: app.sponsoredByMemberId,
+            // Lifecycle tracking - preserve history
+            sourceApplicationId: app.id,
+            sourceVisitorId: app.sourceVisitorId,
+            originalInviterMemberId: app.originalInviterMemberId,
+            firstVisitDate: app.firstVisitDate,
+            appliedDate: app.appliedDate
           };
           setMembers(prev => [...prev, newMember]);
-          setApplications(prev => prev.filter(a => a.id !== appId));
-          setVisitors(prev => prev.filter(v => v.email?.toLowerCase() !== app.email.toLowerCase()));
+          // Mark application as inducted instead of deleting
+          setApplications(prev => prev.map(a =>
+            a.id === appId ? { ...a, inductedAsMemberId: memberId, inductionDate: meetingDate } : a
+          ));
+          // Mark visitor records as converted to member instead of deleting
+          setVisitors(prev => prev.map(v =>
+            v.email?.toLowerCase() === app.email.toLowerCase()
+              ? { ...v, followUpStatus: 'Member' as const, convertedToMemberId: memberId }
+              : v
+          ));
         }
       });
       
-      const newApplications: Application[] = sessionApplications.filter(a => a.name && a.email && a.companyName).map(a => ({
-        id: `app-${Date.now()}-${Math.random()}`, name: a.name || '', dob: a.dob || '', address: a.address || '', companyName: a.companyName || '',
-        professionalClassification: a.professionalClassification || '', email: a.email || '', phone: a.phone || '', appliedDate: meetingDate,
-        status: 'Applied', sponsoredByMemberId: a.sponsoredByMemberId
-      }));
+      const newApplications: Application[] = sessionApplications.filter(a => a.name && a.email && a.companyName).map(a => {
+        // Find the original visitor record to preserve history
+        const originalVisitor = visitors.find(v => v.email?.toLowerCase() === a.email?.toLowerCase());
+        const appId = `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        return {
+          id: appId, name: a.name || '', dob: a.dob || '', address: a.address || '', companyName: a.companyName || '',
+          professionalClassification: a.professionalClassification || '', email: a.email || '', phone: a.phone || '', appliedDate: meetingDate,
+          status: 'Applied' as ApplicationStatus, sponsoredByMemberId: a.sponsoredByMemberId,
+          // Lifecycle tracking - preserve visitor history
+          sourceVisitorId: originalVisitor?.id,
+          originalInviterMemberId: originalVisitor?.invitedByMemberId,
+          firstVisitDate: originalVisitor?.date
+        };
+      });
       if (newApplications.length > 0) {
         setApplications(prev => [...prev, ...newApplications]);
+        // Mark visitors as Applied instead of deleting them
         const newAppEmails = newApplications.map(a => a.email.toLowerCase());
-        setVisitors(prev => prev.filter(v => v.email && !newAppEmails.includes(v.email.toLowerCase())));
+        setVisitors(prev => prev.map(v =>
+          v.email && newAppEmails.includes(v.email.toLowerCase())
+            ? { ...v, followUpStatus: 'Applied' as const, convertedToApplicationId: newApplications.find(app => app.email.toLowerCase() === v.email?.toLowerCase())?.id }
+            : v
+        ));
       }
 
       const validReferrals = sessionReferrals.filter(r => r.fromMemberId && r.toMemberId && r.prospectName).map(r => ({

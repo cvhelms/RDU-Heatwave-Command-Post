@@ -79,7 +79,12 @@ export const MOCK_MEMBERS_EXTENDED: Member[] = [
     phone: '(919) 215-4255',
     memberSince: '2026-01-22',
     renewalDate: '2027-01-22',
-    status: 'Active'
+    status: 'Active',
+    // Lifecycle tracking - Will was a visitor on 1-15, applied, then inducted on 1-22
+    sourceVisitorId: 'v1',
+    originalInviterMemberId: '1',  // Carter Helms invited him
+    firstVisitDate: '2026-01-15',
+    appliedDate: '2026-01-15'
   },
   {
     id: '6',
@@ -200,7 +205,7 @@ export const MOCK_INCENTIVES_EXTENDED: GratitudeIncentive[] = [
 // ===== VISITORS =====
 // From Google Sheet "QR SIGN IN" tab - 1-15-2026 meeting visitors
 export const MOCK_VISITORS_EXTENDED: Visitor[] = [
-  { id: 'v1', date: '2026-01-15', name: 'Will Sigmon', phone: '(919) 215-4255', email: 'wjsigmon@gmail.com', professionalClassification: 'Software Developer', companyName: '', invitedByMemberId: '1', followUpStatus: 'Applied' },
+  { id: 'v1', date: '2026-01-15', name: 'Will Sigmon', phone: '(919) 215-4255', email: 'wjsigmon@gmail.com', professionalClassification: 'Software Developer', companyName: '', invitedByMemberId: '1', followUpStatus: 'Member', convertedToMemberId: '5' },
   { id: 'v2', date: '2026-01-15', name: 'Mitch Ludwig', phone: '(819) 283-6911', email: 'mitch@carolinawealth.com', professionalClassification: 'Financial Planner', companyName: '', invitedByMemberId: '1', followUpStatus: 'Pending' },
   { id: 'v3', date: '2026-01-15', name: 'Gabriel Trincado', phone: '(919) 808-4592', email: 'gtrincado@triangleconciergept.com', professionalClassification: 'Physical Therapist', companyName: '', invitedByMemberId: '6', followUpStatus: 'Pending' },
   { id: 'v4', date: '2026-01-15', name: 'Garth McGee', phone: '(704) 589-6773', email: 'garth@homedockusa.com', professionalClassification: 'Home Services Advertising', companyName: '', invitedByMemberId: '1', followUpStatus: 'Pending' },

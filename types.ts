@@ -36,6 +36,12 @@ export interface Application {
   notes?: string;
   declineDate?: string;
   previousStatus?: ApplicationStatus;
+  // Lifecycle tracking
+  sourceVisitorId?: string;           // Links to original visitor record
+  originalInviterMemberId?: string;   // Who first invited them as a visitor
+  firstVisitDate?: string;            // When they first visited
+  inductedAsMemberId?: string;        // Links to member record when inducted
+  inductionDate?: string;             // When they were inducted
 }
 
 export interface Member {
@@ -56,6 +62,12 @@ export interface Member {
   archivalDate?: string;
   archivalHistory?: ArchivalRecord[];
   isGoverningCommittee?: boolean;
+  // Lifecycle tracking
+  sourceApplicationId?: string;       // Links to original application record
+  sourceVisitorId?: string;           // Links to first visitor record
+  originalInviterMemberId?: string;   // Who first invited them as a visitor
+  firstVisitDate?: string;            // When they first visited
+  appliedDate?: string;               // When they applied
 }
 
 export interface Referral {
@@ -81,8 +93,11 @@ export interface Visitor {
   professionalClassification: string;
   companyName: string;
   invitedByMemberId: string;
-  followUpStatus: 'Contacted' | 'Pending' | 'Applied';
+  followUpStatus: 'Contacted' | 'Pending' | 'Applied' | 'Member';
   isFirstVisit?: boolean;
+  // Lifecycle tracking
+  convertedToApplicationId?: string;  // Links to application when they apply
+  convertedToMemberId?: string;       // Links to member when inducted
 }
 
 export interface Attendance {
