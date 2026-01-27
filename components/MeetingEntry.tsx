@@ -60,7 +60,8 @@ import {
   FileDown,
   Info,
   Kanban,
-  DollarSign
+  DollarSign,
+  Upload
 } from 'lucide-react';
 import { getUpcomingBirthdays } from '../utils/dateHelpers';
 
@@ -559,6 +560,97 @@ const MeetingEntry: React.FC<MeetingEntryProps> = ({
     setGuestEntry({...guestEntry, dob: value});
   };
 
+  const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (!text) return;
+
+      const lines = text.split('\n').filter(line => line.trim());
+      if (lines.length < 2) return; // Need at least header + 1 row
+
+      // Parse header to find column indices
+      const header = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
+      const nameIdx = header.findIndex(h => h.includes('name'));
+      const emailIdx = header.findIndex(h => h.includes('email'));
+      const phoneIdx = header.findIndex(h => h.includes('phone'));
+      const companyIdx = header.findIndex(h => h.includes('company'));
+      const classificationIdx = header.findIndex(h => h.includes('classification') || h.includes('profession') || h.includes('industry'));
+      const dobIdx = header.findIndex(h => h.includes('dob') || h.includes('birthday') || h.includes('birth'));
+      const inviterIdx = header.findIndex(h => h.includes('invit') || h.includes('sponsor') || h.includes('host') || h.includes('whose'));
+
+      const newVisitors: Partial<Visitor>[] = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        // Handle CSV with quoted values containing commas
+        const row: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        for (const char of lines[i]) {
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            row.push(current.trim().replace(/^["']|["']$/g, ''));
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        row.push(current.trim().replace(/^["']|["']$/g, ''));
+
+        const name = nameIdx >= 0 ? row[nameIdx]?.toUpperCase() : '';
+        const email = emailIdx >= 0 ? row[emailIdx] : '';
+
+        if (!name && !email) continue; // Skip empty rows
+
+        // Try to match inviter by name
+        let invitedByMemberId = '';
+        if (inviterIdx >= 0 && row[inviterIdx]) {
+          const inviterName = row[inviterIdx].toLowerCase();
+          const matchedMember = members.find(m =>
+            m.name.toLowerCase().includes(inviterName) ||
+            inviterName.includes(m.name.toLowerCase().split(' ')[0])
+          );
+          invitedByMemberId = matchedMember?.id || '';
+        }
+
+        // Check if this visitor already exists in the session
+        const existsInSession = sessionVisitors.some(v =>
+          (email && v.email?.toLowerCase() === email.toLowerCase()) ||
+          (name && v.name?.toLowerCase() === name.toLowerCase())
+        );
+        if (existsInSession) continue;
+
+        newVisitors.push({
+          id: `guest-csv-${Date.now()}-${i}`,
+          name,
+          email,
+          phone: phoneIdx >= 0 ? row[phoneIdx] : '',
+          companyName: companyIdx >= 0 ? row[companyIdx]?.toUpperCase() : '',
+          professionalClassification: classificationIdx >= 0 ? row[classificationIdx]?.toUpperCase() : '',
+          dob: dobIdx >= 0 ? row[dobIdx] : '',
+          invitedByMemberId,
+          followUpStatus: 'Pending',
+          isFirstVisit: !visitors.some(v =>
+            (email && v.email?.toLowerCase() === email.toLowerCase()) ||
+            (name && v.name?.toLowerCase() === name.toLowerCase())
+          )
+        });
+      }
+
+      if (newVisitors.length > 0) {
+        setSessionVisitors(prev => [...prev, ...newVisitors]);
+      }
+
+      // Reset file input
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  };
+
   const handlePinSubmit = () => {
     if (pinInput === EXIT_PIN) {
       setShowPinPad(false); setShowCheckInForm(false); setPinInput('');
@@ -1014,7 +1106,7 @@ const MeetingEntry: React.FC<MeetingEntryProps> = ({
             </div>
           </section>
           
-          <section className="bg-white rounded-[2rem] shadow-sm border"><div className="p-6 border-b flex justify-between items-center"><div className="flex items-center gap-3"><UserPlus className="w-5 h-5 text-red-600" /><h3 className="text-lg font-black italic uppercase text-slate-900">2. Guest Database</h3></div><button onClick={() => setShowCheckInForm(true)} className="bg-red-600 px-6 py-2.5 rounded-xl text-white text-[10px] font-black uppercase flex items-center gap-2"><Monitor className="w-4 h-4" /> Launch Kiosk</button></div>
+          <section className="bg-white rounded-[2rem] shadow-sm border"><div className="p-6 border-b flex justify-between items-center"><div className="flex items-center gap-3"><UserPlus className="w-5 h-5 text-red-600" /><h3 className="text-lg font-black italic uppercase text-slate-900">2. Guest Database</h3></div><div className="flex items-center gap-2"><input type="file" accept=".csv" onChange={handleCsvUpload} className="hidden" id="csv-guest-upload" /><label htmlFor="csv-guest-upload" className="bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-xl text-slate-600 text-[10px] font-black uppercase flex items-center gap-2 cursor-pointer transition-colors"><Upload className="w-4 h-4" /> CSV Import</label><button onClick={() => setShowCheckInForm(true)} className="bg-red-600 px-6 py-2.5 rounded-xl text-white text-[10px] font-black uppercase flex items-center gap-2"><Monitor className="w-4 h-4" /> Launch Kiosk</button></div></div>
             <div className="p-8">
               {sessionVisitors.length === 0 ? <div className="h-24 flex items-center justify-center border-2 border-dashed rounded-[2rem]"><p className="text-[10px] text-slate-300 font-bold uppercase italic">Awaiting arrivals...</p></div> : 
               <div className="grid md:grid-cols-2 gap-4">
